@@ -1,0 +1,78 @@
+# Config file for train.py for Spheres dataset
+
+# ============================= meta parameters ============================= #
+meta:
+  exp_id: 3             # experiment id
+  model_name: null      # model name. If null, automatically generate it.
+  save_path: './'       # path to save model weights
+  data_path: '~/data/'  # path to dataset
+  seed: 2020            # set random seed
+  gpu_id: '2'           # set id of GPU to use (e.g., '0' or '0, 1')
+  dataset: 'spheres'
+
+  # Spheres dataset params
+  d: 500
+  num_total: 1.0e+7
+  radii: [1., 1.3]
+  centers: [0., 0.]
+  test_size: 0.2
+
+  normalize: null
+  network: 'dense2'
+  val_size: 0.1
+  batch_size: 500        # training and evaluation batch size
+  epochs: 70             # total number of epochs to train
+  learning_rate: 1.0e-3  # learning rate
+  l2_reg: 5.0e-4         # L2-regularization or weight decay parameter
+  augment: False
+  save_best_only: True   # if True, only save best model
+  save_epochs: 1         # used when <save_best_only> is False. Save model every specified epochs
+  lr_scheduler: 'step'   # learning rate schedule (options: null, 'step', 'cyclic')
+  method: 'rand'         # training method (options: 'pgd', 'fgsm', 'rand', 'pgd-rand', 'none' = normal training)
+
+# =================== parameters for adversarial training =================== #
+at:
+  random_start: True    # if True, use random start
+  loss_func: 'ce'       # loss function for generating adversarial examples (options: 'ce', 'hinge', 'clipped_ce', 'trades')
+  use_diff_rand_eps: False    # if True, use random start with perturbation size of <rand_eps> instead of <epsilon>
+  rand_eps: 0
+  clip: null            # if True, clip adversarial input to [0, 1]
+  beta: 0               # TRADES parameters
+
+  p: '2'
+  epsilon: 0.1
+  num_steps: 10
+  step_size: 0.02
+
+  # parameters for ATES
+  early_stop: False         # if True, use AT with early stop (ATES)
+  init_gap: 0               # initial softmax probability gap
+  final_gap: 1              # final softmax probability gap
+  step_gap: [30, 45, 60]    # specify schedule for probability gap
+  linear_gap: null
+  # step_gap: null
+  # linear_gap: [30, 70]
+
+  # parameters for Dynamic AT
+  use_fosc: False           # if True, use Dynamic AT
+  fosc_max: 0.5             # maximum (initial) threshold for optimality gap
+  dynamic_epoch: 30         # number of epochs that threshold linearly drops to zero
+
+# ===================== parameters for random transform ===================== #
+rand:
+  rule: 'majority'
+  temperature: 1
+  seed: null
+  clip: null
+  num_draws: 1
+  # transforms: ['flipsign']
+  transforms: ['normal']
+  flipsign:
+    p: 0.5
+  normal:
+    mean: 0.0
+    std: 0.1
+    # clip: [0., 1.]
+    clip: null
+  uniform:
+    range: [-0.2, 0.2]

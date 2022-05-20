@@ -1,0 +1,203 @@
+# This is an example config file for testing an RT model
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  exp_id: 1               # Set experiment identifier
+  gpu_id: '0, 1'          # Set GPUs to use
+  seed: 2020              # Main random seed
+  model_name: null        # If set to null, model name is auto-generated
+  save_path: '/home/user/rand-smooth/save/'    # Path to save directory (must be absolute)
+  data_path: '~/data/imagenette2-320/'           # Path to dataset
+  # load_pickle: True     # Uncomment to load test data from pickle file via data_path
+  network: 'resnet34'     # Options: 'resnet18', 'resnet34', 'resnet50'
+  # load_epoch: 100       # Load weights from a specific epoch if exists
+  pretrained: True        # Whether to load the pretrain weight
+  dataset: 'imagenette'   # Dataset to use
+  classes: null           # Set to classes to sub-sample from
+  augment: False          # Whether to augment training data (in addition to RT model)
+  normalize: null         # Specify mean and variance to normalize the input
+  shuffle: True           # Should always be True for consistency
+  val_size: 0.1           # Validation set split
+  method: 'rand'          # Options: 'none', 'rand', 'pgd', 'rand-pgd'
+  test:   # Testing params
+    batch_size: 10
+    num_samples: 10
+    save_output: False         # Save output in pickle format
+    # save_name: 'ce-m-vr-nd'  # Specify name of the saved pickle file
+    save_adv: False            # Save generated adversarial examples
+    save_adv_out: False        # Save logits output for adversarial examples
+    save_clean_out: False      # Save logits output for clean samples
+    clean_only: False          # Evaluate model on clean data only
+    adv_only: False            # Evaluate model under attack only
+    num_conf_repeats: 10       # Number of inferences to run (used for computing confidence interval and mean outputs)
+  train:  # Training params
+    batch_size: 128
+  valid:  # Validation params
+    batch_size: 100
+  num_workers: 8          # Set number of workers for DataLoader
+  console_out: True       # Whether to output at console in addition to an auto-generated log file
+
+# =========================================================================== #
+#                                  Attack Params                              #
+# =========================================================================== #
+attack:
+  # Can be any string but must contains exactly one of the three keywords: 
+  # 'pgd', 'opt', 'auto' (e.g., 'pgd_best'). The attack setup function will
+  # then look for a parameter under the same name in this config file.
+  method: 'pgd'
+  # method can also be specified by a list. The attack will find the parameters
+  # corresponding to the specified name. For instance,
+  # method: ['pgd', 'opt']
+  p: 'inf'  # Options: 'inf', '2'
+
+# Parameters for PGD attack
+pgd:
+  loss_func: 'ce'       # Options: 'ce', 'linear', 'hinge', 'logits', 'sm-hinge'
+  gap: 1.0e+9           # Gap parameter of hinge loss
+  targeted: False       # (default: False)
+  random_start: True    # Use random restart when init adv examples
+  init_mode: 1          # Initialization mode (default: 1)
+  num_restarts: 1       # (default: 1)
+  clip: [0., 1.]        # Clipping values on the perturbed sample (use null or comment for no clipping)
+  epsilon: 0.06274509803
+  num_steps: 100
+  step_size: 0.005
+  # momentum:             # Momentum boosting params
+  #   mu: 1.
+  #   # decay: 'linear'
+  #   normalize: True
+  #   # vr: 'basic'
+  # sgm_gamma: 0.5        # SGM params
+  # linbp_layer: [4, 1]   # LinBP params
+  # report_steps: [100, 200, 500, 800, 1000, 1600, 2000]    # We can return adv examples at a particular number of steps
+
+# Parameters for optimizer-based attack
+opt:
+  optimizer: 'adam'     # Options: 'sgd', 'adam', 'rmsprop'
+  loss_func: 'ce'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  epsilon: 0.06274509803
+  num_steps: 200
+  step_size: 0.005
+  var_change: False     # Use change of variable trick like CW attack
+  normalize: True       # Normalize gradient before calling backward
+  # momentum: 
+  #   mu: 0.9
+  #   # nesterov: True
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+
+# Parameters for auto-attack
+auto:
+  epsilon: 0.06274509803
+  version: 'standard'   # Options: 'standard', 'rand', 'plus'
+
+# =========================================================================== #
+#                             Random Transform Params                         #
+# =========================================================================== #
+rand:
+  test:
+    rule: 'mean_probs'        # Decision rule. Options: 'majority', 'mean_probs', 'mean_logits'
+    num_draws: 10             # Number of Monte Carlo samples (n)
+    tf_order: 'random'        # Options: 'random' (random permutation), 'fixed' (same permutation in a batch)
+    # fix_seed: True          # Fix all transforms and parameters for all batches
+    # fix_order_only: True    # Fix only the transform permutation but not parameters for all batches
+  attack:
+    rule: 'mean_probs'        # Decision rule for attack. Options: 'eot', 'mean_probs', 'mean_logits'
+    num_draws: 10
+    tf_order: 'fixed'
+    # fix_seed: True
+    # fix_order_only: True
+  clip: [0., 1.]      # Clipping after applying each transform
+  # set_all_p: 1.
+  subset_size: 14     # Number of transforms to apply for each inference (S)
+  use_saved_transforms: True    # Use save transformation parameters. Require rand.cfg file.
+  # All transformations
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'pepper', 
+  #              'hsv', 'erase', 'fft', 'gamma', 'gaussblur',
+  #              'hflip', 'jpeg', 'lab', 'laplacian', 'medblur', 'graymix', 
+  #              'motionblur', 'normal', 'gray1', 'poisson', 'gray', 
+  #              'precision', 'salt', 'sharp', 'sobel', 'solarize', 'speckle', 
+  #              'swirl', 'gray2', 'uniform', 'vflip', 'xyz', 'yuv']
+  # 18 transformations used in the best RT model
+  transforms: ['affine', 'colorjitter', 'erase', 'fft', 'gamma', 'gaussblur', 
+               'hflip', 'jpeg', 'laplacian', 'medblur', 'motionblur', 'poisson', 
+               'precision', 'salt', 'sharp', 'sobel', 'solarize', 'vflip']
+  affine:
+    alpha: 0.5
+  boxblur:
+    p: 0.0
+  colorjitter:
+    alpha: 0.5
+  crop: 
+    alpha: 0.
+  erase:
+    alpha: 0.2680
+  fft:
+    alpha: 0.5
+  gamma:
+    alpha: 0.5
+  gaussblur:
+    p: 0.3
+  gaussblur_same:
+    p: 0.322
+    kernel_size: 5
+    sigma: 2.5
+  gray:
+    p: 0.3
+  gray1:
+    p: 0.3
+  gray2:
+    p: 0.3
+  graymix:
+    alpha: 0.3
+  hflip:
+    p: 0.3859
+  hsv:
+    alpha: 0.3
+  jpeg:
+    alpha: 0.5
+  lab:
+    alpha: 0.3
+  laplacian:
+    p: 0.5163
+    kernel_size: 3
+  medblur:
+    p: 1.
+    kernel_size: 3
+  motionblur:
+    p: 0.6901
+    kernel_size: 3
+    angle: 90.0
+    direction: 1.0
+  normal:
+    alpha: 0.
+  pepper:
+    alpha: 0.    # drop rate
+  poisson:
+    alpha: 0.5
+  precision:
+    alpha: 0.221
+  salt:
+    alpha: 0.5
+  sharp:
+    alpha: 0.5
+  sobel:
+    p: 0.2663
+  solarize:
+    p: 0.4244
+  speckle:
+    alpha: 0.
+  swirl:
+    alpha: 0.
+  uniform:
+    alpha: 0.
+  vflip:
+    p: 0.5825
+  xyz:
+    alpha: 0.3
+  yuv:
+    alpha: 0.3
+  save_transformed_img: False     # Save transformed images and quit

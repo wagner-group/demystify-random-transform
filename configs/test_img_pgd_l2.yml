@@ -1,0 +1,90 @@
+# Config file for train_and_test.py for Imagenette.
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  exp_id: 12
+  gpu_id: '7'
+  seed: 2020
+  model_name: null        # If set to null, model name is auto-generated
+  save_path: './save/'    # This relative path is set to Ray's `local_dir/name`
+  data_path: '~/data/imagenette2-320/'
+  network: 'resnet34'
+  pretrained: True
+  dataset: 'imagenette'
+  classes: null
+  augment: False           # Whether to augment training data
+  normalize: null
+  shuffle: True           # Should always be True for consistency
+  val_size: 0.1           # Validation set split
+  method: 'pgd'           # 'none', 'rand', 'pgd', 'fgsm', 'rand-pgd'
+  test:   # Testing params
+    batch_size: 200
+    num_samples: 1000
+    save_adv: False          # Save generated adversarial examples
+    save_adv_out: False      # Save logits output for adversarial examples
+    save_clean_out: False    # Save logits output for clean samples
+    clean_only: False        # Evaluate model on clean data only
+  train:  # Training params
+    batch_size: 128
+  valid:  # Validation params
+    batch_size: 200
+
+# =========================================================================== #
+#                                  Attack Params                              #
+# =========================================================================== #
+attack:
+  method: 'auto'   # 'pgd', 'opt', 'auto'
+  p: '2'
+  eps_list: [16.]
+  use_preset: False
+
+# Parameters for pgd attack
+pgd:
+  random_start: True
+  loss_func: 'hinge'   # 'ce', 'hinge', 'logits'
+  gap: 1.0e+9    # Gap parameter of hinge loss
+  targeted: False
+  clip: [0., 1.]    # clipping values on the perturbed sample (use null for no clipping)
+  init_mode: 1
+  num_restarts: 1
+  num_steps: 100
+  step_size: 0.2
+  # maximin: 10
+  # momentum:
+  #   mu: 1.
+  #   decay: False
+  #   normalize: True
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+
+# Parameters for Opt attack
+opt:
+  optimizer: 'adam'    # 'sgd', 'adam', 'rmsprop'
+  random_start: True
+  loss_func: 'ce'
+  gap: 1.0e+9
+  targeted: False
+  clip: [0., 1.]
+  init_mode: 1
+  num_restarts: 1
+  num_steps: 500
+  learning_rate: 0.2
+  lr_schedule: null    # 'cyclic', null
+  # maximin: 10
+  # momentum: 1.
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+
+# Parameters for auto-attack
+auto:
+  version: 'standard'
+
+# TODO: Parameters for saving gradient information
+save_grad:
+  save_grad: False    # Set to True to save gradients
+  num_samples: 20
+  num_steps: 10
+
+diversity:
+  method: null

@@ -1,0 +1,179 @@
+# Config file with BART transforms for train_bpda.py for Imagenette
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  exp_id: 1
+  augment: false
+  data_path: ~/data/imagenette
+  dataset: imagenette
+  load_pickle: False
+  epochs: 0
+  gpu_id: '0'
+  l2_reg: 0.0
+  learning_rate: 0.01
+  lr_scheduler: null
+  tf_order: group
+  group_size: 32
+  subset_size: 10
+  method: rand
+  model_name: null
+  normalize: null
+  optimizer: adam
+  pretrained: true
+  save_best_only: true
+  save_path: ./save/
+  seed: 2020
+  val_size: 0.1
+  test:   # Testing params
+    batch_size: 32
+  train:  # Training params
+    batch_size: 32
+  valid:  # Validation params
+    batch_size: 32
+
+# =========================================================================== #
+#                                    Transform                                #
+# =========================================================================== #
+transform: 'boxblur_batch'
+
+# =========================================================================== #
+#                             Random Transform Params                         #
+# =========================================================================== #
+adaptive_hist:
+  arc: bart
+  min_clip: 0.01
+  max_clip: 0.04
+  nparams: 9
+bilatblur_batch: #retrain
+  arc: bart
+  min_ks: 2
+  max_ks: 20
+  min_std_space: 5
+  max_std_space: 20
+  min_std_color: 5
+  max_std_color: 20
+  nparams: 9
+boxblur_batch:
+  arc: bart
+  max_ks: 6
+  min_ks: 4
+  nparams: 2
+contrast_sketch:
+  arc: bart
+  hi_perc_min: 0.96
+  low_perc_max: 0.04
+  nparams: 7
+fft_full:
+  arc: bart
+  min_pf: 0.98
+  max_pf: 1.02
+  min_frac: 0.0
+  max_frac: 0.95
+  nparams: 2
+gaussblur_batch: 
+  arc: bart
+  max_ks: 19
+  max_std: 3
+  min_ks: 19
+  min_std: 0.1
+  nparams: 4
+gray:
+  arc: bart
+  nparams: 3
+gray1:
+  arc: bart
+  nparams: 4
+gray2:
+  arc: bart
+  nparams: 4
+graymix:
+  arc: bart
+  alpha: 1
+  nparams: 6
+histogram: # create #retrain
+  arc: bart
+  min_bins: 40
+  max_bins: 256
+  nparams: 1
+hsv_color_full:
+  arc: bart
+  max_h: 0.05
+  max_sv: 0.25
+  min_h: -0.05
+  min_sv: -0.25
+  nparams: 3
+jpeg_full: #retrain #add params
+  arc: bart
+  max: 95
+  min: 55
+  nparams: 1
+lab_color_full:
+  arc: bart
+  max_ab: 2
+  max_l: 5
+  min_ab: -2
+  min_l: -5
+  nparams: 3
+medblur_batch:
+  arc: bart
+  max_ks: 10
+  min_ks: 4
+  nparams: 2
+nl_means_denoise: #too slow
+  arc: bart
+  max: 1.15
+  min: 0.6
+  nparams: 3
+normal: #retrain
+  arc: bart
+  nparams: 0
+  std: 0.05
+pepper:
+  arc: bart
+  nparams: 0
+  alpha: 0.01
+poisson:
+  arc: bart
+  alpha: 0.01
+  nparams: 0
+precision_full:
+  arc: bart
+  max: 200
+  min: 8
+  nparams: 3
+salt:
+  arc: bart
+  nparams: 0
+  alpha: 0.01
+swirl_full:
+  arc: bart
+  max_rad: 200
+  max_strength: 2
+  min_rad: 10
+  min_strength: 0.01
+  nparams: 4
+tv_denoise: 
+  arc: bart
+  max: 1.15
+  min: 0.6
+  nparams: 2
+xyz_color_full:
+  arc: bart
+  max: 0.25
+  min: -0.25
+  nparams: 3
+yuv_color_full:
+  arc: bart
+  max_uv: 0.02
+  max_y: 0.05
+  min_uv: -0.02
+  min_y: -0.05
+  nparams: 3
+zoom:
+  arc: bart
+  max_height: 224
+  max_width: 224
+  min_height: 156
+  min_width: 156
+  nparams: 4

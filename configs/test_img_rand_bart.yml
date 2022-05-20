@@ -1,0 +1,406 @@
+# Config file for train_and_test.py for Imagenette.
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  exp_id: 9
+  gpu_id: '0'
+  seed: 2020
+  model_name: bart_all_diff      # If set to null, model name is auto-generated
+  save_path: './save/'    # This relative path is set to Ray's `local_dir/name`
+  data_path: '../data/imagenette/'
+  num_classes: 10
+  simple_path: True
+  load_pickle: False
+  network: 'resnet50'
+  # load_epoch: 50
+  pretrained: True
+  dataset: 'imagenette'
+  classes: null
+  augment: False           # Whether to augment training data
+  normalize: null
+  shuffle: True           # Should always be True for consistency
+  val_size: 0.1           # Validation set split
+  method: 'rand-pgd'           # 'none', 'rand', 'pgd', 'fgsm', 'rand-pgd'
+  test:   # Testing params
+    batch_size: 1
+    num_samples: 5
+    num_conf_repeats: 2
+    save_adv: True           # Save generated adversarial examples
+    save_adv_out: False      # Save logits output for adversarial examples
+    save_clean_out: False    # Save logits output for clean samples
+    clean_only: False        # Evaluate model on clean data only
+    adv_only: False
+    save_output: False
+  train:  # Training params
+    batch_size: 1
+  valid:  # Validation params
+    batch_size: 1
+  num_workers: 8
+
+# =========================================================================== #
+#                                  Attack Params                              #
+# =========================================================================== #
+attack:
+  method: 'pgd'   # 'pgd', 'opt', 'auto'
+  p: 'inf'
+  use_preset: False
+
+# Parameters for pgd attack
+pgd:
+  random_start: True
+  loss_func: 'ce'   # 'ce', 'hinge', 'logits'
+  gap: 1.0e+9    # Gap parameter of hinge loss
+  targeted: False
+  clip: [0., 1.]    # clipping values on the perturbed sample (use null for no clipping)
+  init_mode: 1
+  num_restarts: 1
+  num_steps: 10
+  # step_size: 0.005
+  step_size: 0.01568
+  epsilon: 0.062745
+  momentum:
+    mu: 1.
+    decay: False
+    normalize: True
+    vr: 'basic'
+
+# Parameters for Opt attack
+opt:
+  optimizer: 'adam'    # 'sgd', 'adam', 'rmsprop'
+  random_start: True
+  loss_func: 'ce'
+  gap: 1.0e+9
+  targeted: False
+  clip: [0., 1.]
+  init_mode: 1
+  num_restarts: 1
+  num_steps: 500
+  learning_rate: 0.2
+  lr_schedule: null    # 'cyclic', null
+  # maximin: 10
+  # momentum: 1.
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+
+# Parameters for auto-attack
+auto:
+  version: 'standard'
+
+# =========================================================================== #
+#                             Random Transform Params                         #
+# =========================================================================== #
+rand:
+  test:
+    rule: 'mean_logits'
+    num_draws: 2
+    tf_order: 'random'
+  attack:
+    rule: 'eot'
+    num_draws: 2
+    tf_order: 'random'
+  diversity:
+    rule: 'eot'
+    num_draws: 2
+  clip: [0., 1.]
+  set_all_p: 1.
+  subset_size: 10
+  use_saved_transforms: False    # Whether to load saved transform
+  # diff
+  # transforms: ['bilatblur_batch', 'boxblur_batch', 'fft_full', 'gaussblur_batch', 'gray', 'gray1', 'gray2', 'graymix', 'hsv_color_full', 'jpeg_full', 'lab_color_full', 'medblur_batch', 'normal', 'pepper', 'poisson', 'precision_full', 'salt', 'swirl_full', 'xyz_color_full', 'yuv_color_full', 'zoom']
+  # diff bpda
+  transforms: ['bilatblur_batch_bpda', 'boxblur_batch_bpda', 'fft_full_bpda', 'gaussblur_batch_bpda', 'gray_bpda', 'gray1_bpda', 'gray2_bpda', 'graymix_bpda', 'hsv_color_full_bpda', 'jpeg_full_bpda', 'lab_color_full_bpda', 'medblur_batch_bpda', 'normal_bpda', 'pepper_bpda', 'poisson_bpda', 'precision_full_bpda', 'salt_bpda', 'swirl_full_bpda', 'xyz_color_full_bpda', 'yuv_color_full_bpda', 'zoom_bpda']
+  # non diff combo
+  # transforms: ['adaptive_hist_bpda', 'bilatblur_batch', 'boxblur_batch', 'contrast_sketch_bpda', 'fft_full', 'gaussblur_batch', 'gray', 'gray1', 'gray2', 'graymix', 'histogram_bpda', 'hsv_color_full', 'jpeg_full', 'lab_color_full', 'medblur_batch', 'normal', 'pepper', 'poisson', 'precision_full', 'salt', 'swirl_full', 'tv_denoise_bpda', 'xyz_color_full', 'yuv_color_full', 'zoom']
+  # non diff bpda
+  # transforms: ['adaptive_hist_bpda', 'bilatblur_batch_bpda', 'boxblur_batch_bpda', 'contrast_sketch_bpda', 'fft_full_bpda', 'gaussblur_batch_bpda', 'gray_bpda', 'gray1_bpda', 'gray2_bpda', 'graymix_bpda', 'histogram_bpda', 'hsv_color_full_bpda', 'jpeg_full_bpda', 'lab_color_full_bpda', 'medblur_batch_bpda', 'normal_bpda', 'pepper_bpda', 'poisson_bpda', 'precision_full_bpda', 'salt_bpda', 'swirl_full_bpda', 'tv_denoise_bpda', 'xyz_color_full_bpda', 'yuv_color_full_bpda', 'zoom_bpda']
+  adaptive_hist:
+    min_clip: 0.01
+    max_clip: 0.04
+  bilatblur_batch: #retrain
+    min_ks: 2
+    max_ks: 20
+    min_std_space: 5
+    max_std_space: 20
+    min_std_color: 5
+    max_std_color: 20
+  boxblur_batch:
+    max_ks: 6
+    min_ks: 4
+  contrast_sketch:
+    hi_perc_min: 0.96
+    low_perc_max: 0.04
+  fft_full:
+    min_pf: 0.98
+    max_pf: 1.02
+    min_frac: 0.0
+    max_frac: 0.95
+  gaussblur_batch: 
+    max_ks: 19
+    max_std: 3
+    min_ks: 19
+    min_std: 0.1
+  gray:
+    dummy: null
+  gray1:
+    dummy: null
+  gray2:
+    dummy: null
+  graymix:
+    alpha: 1
+  histogram: # create #retrain
+    min_bins: 40
+    max_bins: 256
+  hsv_color_full:
+    max_h: 0.05
+    max_sv: 0.25
+    min_h: -0.05
+    min_sv: -0.25
+  jpeg_full: #retrain #add params
+    max: 95
+    min: 55
+  lab_color_full:
+    max_ab: 2
+    max_l: 5
+    min_ab: -2
+    min_l: -5
+  medblur_batch:
+    max_ks: 10
+    min_ks: 4
+  nl_means_denoise: #too slow
+    max: 1.15
+    min: 0.6
+  normal: #retrain
+    std: 0.05
+  pepper:
+    alpha: 0.01
+  poisson:
+    alpha: 0.01
+  precision_full:
+    max: 200
+    min: 8
+  salt:
+    alpha: 0.01
+  swirl_full:
+    max_rad: 200
+    max_strength: 2
+    min_rad: 10
+    min_strength: 0.01
+  tv_denoise: 
+    max: 1.15
+    min: 0.6
+  xyz_color_full:
+    max: 0.25
+    min: -0.25
+  yuv_color_full:
+    max_uv: 0.02
+    max_y: 0.05
+    min_uv: -0.02
+    min_y: -0.05
+  zoom:
+    max_height: 224
+    max_width: 224
+    min_height: 156
+    min_width: 156
+  
+  # adaptive_hist_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_adaptive_hist_arc_bart_max_clip_0.04_min_clip_0.01_nparams_9_exp_0'
+  # bilatblur_batch_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_bilatblur_batch_arc_bart_max_ks_20_max_std_color_20_max_std_space_20_min_ks_2_min_std_color_5_min_std_space_5_nparams_9_exp_0'
+  # boxblur_batch_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_boxblur_batch_arc_bart_max_ks_6_min_ks_4_nparams_2_exp_0'
+  # contrast_sketch_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_contrast_sketch_arc_bart_hi_perc_min_0.96_low_perc_max_0.04_nparams_7_exp_0'
+  # fft_full_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_fft_full_arc_bart_max_frac_0.95_max_pf_1.02_min_frac_0.0_min_pf_0.98_nparams_2_exp_0'
+  # gaussblur_batch_bpda: 
+  #   path: './saved_models/bpda/imagenette_bpda_gaussblur_batch_arc_bart_max_ks_19_max_std_3_min_ks_19_min_std_0.1_nparams_4_exp_0'
+  # gray_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_gray_arc_bart_nparams_3_exp_0'
+  # gray1_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_gray1_arc_bart_nparams_4_exp_0'
+  # gray2_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_gray2_arc_bart_nparams_4_exp_0'
+  # graymix_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_graymix_alpha_1_arc_bart_nparams_6_exp_0'
+  # histogram_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_histogram_arc_bart_max_bins_256_min_bins_40_nparams_1_exp_0'
+  # hsv_color_full_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_hsv_color_full_arc_bart_max_h_0.05_max_sv_0.25_min_h_-0.05_min_sv_-0.25_nparams_3_exp_0'
+  # jpeg_full_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_jpeg_full_arc_bart_max_95_min_55_nparams_1_input_size_224_exp_0'
+  # lab_color_full_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_lab_color_full_arc_bart_max_ab_2_max_l_5_min_ab_-2_min_l_-5_nparams_3_exp_0'
+  # medblur_batch_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_medblur_batch_arc_bart_max_ks_10_min_ks_4_nparams_2_exp_0'
+  # normal_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_normal_arc_bart_nparams_0_std_0.05_exp_0'
+  # pepper_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_pepper_alpha_0.01_arc_bart_nparams_0_exp_0'
+  # poisson_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_poisson_alpha_0.01_arc_bart_nparams_0_exp_0'
+  # precision_full_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_precision_full_arc_bart_max_200_min_8_nparams_3_exp_0'
+  # salt_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_salt_alpha_0.01_arc_bart_nparams_0_exp_0'
+  # swirl_full_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_swirl_full_arc_bart_max_rad_200_max_strength_2_min_rad_10_min_strength_0.01_nparams_4_exp_0'
+  # tv_denoise_bpda: 
+  #   path: './saved_models/bpda/imagenette_bpda_tv_denoise_arc_bart_max_1.15_min_0.6_nparams_2_exp_0'
+  # xyz_color_full_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_xyz_color_full_arc_bart_max_0.25_min_-0.25_nparams_3_exp_0'
+  # yuv_color_full_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_yuv_color_full_arc_bart_max_uv_0.02_max_y_0.05_min_uv_-0.02_min_y_-0.05_nparams_3_exp_0'
+  # zoom_bpda:
+  #   path: './saved_models/bpda/imagenette_bpda_zoom_arc_bart_max_height_224_max_width_224_min_height_156_min_width_156_nparams_4_exp_0'
+
+  # BPDA partially transformed
+
+  adaptive_hist_bpda:
+    path: './save/bpda_models/imagenette_bpda_adaptive_hist_arc_bart_min_clip_0.01_max_clip_0.04_nparams_9_exp_0'
+  bilatblur_batch_bpda:
+    path: './save/bpda_models/imagenette_bpda_bilatblur_batch_arc_bart_min_ks_2_max_ks_20_min_std_space_5_max_std_space_20_min_std_color_5_max_std_color_20_nparams_9_exp_0'
+  boxblur_batch_bpda:
+    path: './save/bpda_models/imagenette_bpda_boxblur_batch_arc_bart_max_ks_6_min_ks_4_nparams_2_exp_0'
+  contrast_sketch_bpda:
+    path: './save/bpda_models/imagenette_bpda_contrast_sketch_arc_bart_hi_perc_min_0.96_low_perc_max_0.04_nparams_7_exp_0'
+  fft_full_bpda:
+    path: './save/bpda_models/imagenette_bpda_fft_full_arc_bart_min_pf_0.98_max_pf_1.02_min_frac_0.0_max_frac_0.95_nparams_2_exp_0'
+  gaussblur_batch_bpda: 
+    path: './save/bpda_models/imagenette_bpda_gaussblur_batch_arc_bart_max_ks_19_max_std_3_min_ks_19_min_std_0.1_nparams_4_exp_0'
+  gray_bpda:
+    path: './save/bpda_models/imagenette_bpda_gray_arc_bart_nparams_3_exp_0'
+  gray1_bpda:
+    path: './save/bpda_models/imagenette_bpda_gray1_arc_bart_nparams_4_exp_0'
+  gray2_bpda:
+    path: './save/bpda_models/imagenette_bpda_gray2_arc_bart_nparams_4_exp_0'
+  graymix_bpda:
+    path: './save/bpda_models/imagenette_bpda_graymix_arc_bart_alpha_1_nparams_6_exp_0'
+  histogram_bpda:
+    path: './save/bpda_models/imagenette_bpda_histogram_arc_bart_min_bins_40_max_bins_256_nparams_1_exp_0'
+  hsv_color_full_bpda:
+    path: './save/bpda_models/imagenette_bpda_hsv_color_full_arc_bart_max_h_0.05_max_sv_0.25_min_h_-0.05_min_sv_-0.25_nparams_3_exp_0'
+  jpeg_full_bpda:
+    path: './save/bpda_models/imagenette_bpda_jpeg_full_arc_bart_max_95_min_55_nparams_1_input_size_224_exp_0'
+  lab_color_full_bpda:
+    path: './save/bpda_models/imagenette_bpda_lab_color_full_arc_bart_max_ab_2_max_l_5_min_ab_-2_min_l_-5_nparams_3_exp_0'
+  medblur_batch_bpda:
+    path: './save/bpda_models/imagenette_bpda_medblur_batch_arc_bart_max_ks_10_min_ks_4_nparams_2_exp_0'
+  normal_bpda:
+    arc: 'identity'
+    path: './save/bpda_models/imagenette_bpda_normal_arc_bart_nparams_0_std_0.05_exp_0'
+  pepper_bpda:
+    arc: 'identity'
+    path: './save/bpda_models/imagenette_bpda_pepper_arc_bart_nparams_0_alpha_0.01_exp_0'
+  poisson_bpda:
+    arc: 'identity'
+    path: './save/bpda_models/imagenette_bpda_poisson_arc_bart_alpha_0.01_nparams_0_exp_0'
+  precision_full_bpda:
+    path: './save/bpda_models/imagenette_bpda_precision_full_arc_bart_max_200_min_8_nparams_3_exp_0'
+  salt_bpda:
+    arc: 'identity'
+    path: './save/bpda_models/imagenette_bpda_salt_arc_bart_nparams_0_alpha_0.01_exp_0'
+  swirl_full_bpda:
+    path: './save/bpda_models/imagenette_bpda_swirl_full_arc_bart_max_rad_200_max_strength_2_min_rad_10_min_strength_0.01_nparams_4_exp_0'
+  tv_denoise_bpda: 
+    path: './save/bpda_models/imagenette_bpda_tv_denoise_arc_bart_max_1.15_min_0.6_nparams_2_exp_0'
+  xyz_color_full_bpda:
+    path: './save/bpda_models/imagenette_bpda_xyz_color_full_arc_bart_max_0.25_min_-0.25_nparams_3_exp_0'
+  yuv_color_full_bpda:
+    path: './save/bpda_models/imagenette_bpda_yuv_color_full_arc_bart_max_uv_0.02_max_y_0.05_min_uv_-0.02_min_y_-0.05_nparams_3_exp_0'
+  zoom_bpda:
+    path: './save/bpda_models/imagenette_bpda_zoom_arc_bart_max_height_224_max_width_224_min_height_156_min_width_156_nparams_4_exp_0'
+
+  # Identity
+  
+  # adaptive_hist_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_adaptive_hist_arc_bart_max_clip_0.04_min_clip_0.01_nparams_9_exp_0'
+  # bilatblur_batch_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_bilatblur_batch_arc_bart_max_ks_20_max_std_color_20_max_std_space_20_min_ks_2_min_std_color_5_min_std_space_5_nparams_9_exp_0'
+  # boxblur_batch_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_boxblur_batch_arc_bart_max_ks_6_min_ks_4_nparams_2_exp_0'
+  # contrast_sketch_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_contrast_sketch_arc_bart_hi_perc_min_0.96_low_perc_max_0.04_nparams_7_exp_0'
+  # fft_full_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_fft_full_arc_bart_max_frac_0.95_max_pf_1.02_min_frac_0.0_min_pf_0.98_nparams_2_exp_0'
+  # gaussblur_batch_bpda: 
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_gaussblur_batch_arc_bart_max_ks_19_max_std_3_min_ks_19_min_std_0.1_nparams_4_exp_0'
+  # gray_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_gray_arc_bart_nparams_3_exp_0'
+  # gray1_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_gray1_arc_bart_nparams_4_exp_0'
+  # gray2_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_gray2_arc_bart_nparams_4_exp_0'
+  # graymix_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_graymix_alpha_1_arc_bart_nparams_6_exp_0'
+  # histogram_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_histogram_arc_bart_max_bins_256_min_bins_40_nparams_1_exp_0'
+  # hsv_color_full_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_hsv_color_full_arc_bart_max_h_0.05_max_sv_0.25_min_h_-0.05_min_sv_-0.25_nparams_3_exp_0'
+  # jpeg_full_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_jpeg_full_arc_bart_max_95_min_55_nparams_1_input_size_224_exp_0'
+  # lab_color_full_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_lab_color_full_arc_bart_max_ab_2_max_l_5_min_ab_-2_min_l_-5_nparams_3_exp_0'
+  # medblur_batch_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_medblur_batch_arc_bart_max_ks_10_min_ks_4_nparams_2_exp_0'
+  # normal_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_normal_arc_bart_nparams_0_std_0.05_exp_0'
+  # pepper_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_pepper_alpha_0.01_arc_bart_nparams_0_exp_0'
+  # poisson_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_poisson_alpha_0.01_arc_bart_nparams_0_exp_0'
+  # precision_full_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_precision_full_arc_bart_max_200_min_8_nparams_3_exp_0'
+  # salt_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_salt_alpha_0.01_arc_bart_nparams_0_exp_0'
+  # swirl_full_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_swirl_full_arc_bart_max_rad_200_max_strength_2_min_rad_10_min_strength_0.01_nparams_4_exp_0'
+  # tv_denoise_bpda: 
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_tv_denoise_arc_bart_max_1.15_min_0.6_nparams_2_exp_0'
+  # xyz_color_full_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_xyz_color_full_arc_bart_max_0.25_min_-0.25_nparams_3_exp_0'
+  # yuv_color_full_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_yuv_color_full_arc_bart_max_uv_0.02_max_y_0.05_min_uv_-0.02_min_y_-0.05_nparams_3_exp_0'
+  # zoom_bpda:
+  #   arc: 'identity'
+  #   path: './saved_models/bpda/imagenette_bpda_zoom_arc_bart_max_height_224_max_width_224_min_height_156_min_width_156_nparams_4_exp_0'
+  save_transformed_img: False
+
+# TODO: Parameters for saving gradient information
+save_grad:
+  save_grad: False    # Set to True to save gradients
+  num_samples: 20
+  num_steps: 10
+
+diversity:
+  method: null
+  # method: ['agreement']
+  batch_size: 4

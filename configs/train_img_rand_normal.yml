@@ -1,0 +1,258 @@
+# Config file for train_ray.py for CIFAR-10.
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  exp_id: 23
+  seed: 2020
+  model_name: null  # If set to null, model name is auto-generated
+  save_path: '~/rand-smooth/save/'
+  data_path: '~/data/imagenette2-320/'
+  network: 'resnet34'
+  # pretrained: True
+  pretrained: 
+  dataset: 'imagenette'
+  classes: null
+  augment: False           # Whether to augment training data
+  normalize: null
+  shuffle: True           # Should always be True for consistency
+  val_size: 0.1           # Validation set split
+  method: 'pgd-rand'
+  test:   # Testing params
+    batch_size: 24
+    num_samples: 1000
+    save_output: False
+    # save_name: 'adam-sgm-20-200'
+    save_adv: False          # Save generated adversarial examples
+    save_adv_out: False      # Save logits output for adversarial examples
+    save_clean_out: False    # Save logits output for clean samples
+    clean_only: False        # Evaluate model on clean data only
+  train:  # Training params
+    batch_size: 128
+    epochs: 70
+    l2_reg: 0.0005
+    learning_rate: 0.05
+    lr_scheduler: 'cos'
+    step_len: 10
+    optimizer: 'sgd'
+    save_best_only: True
+    save_epochs: 1
+    eval_with_atk: False
+    metric: 
+      metric: 'weight_acc'    # 'adv_acc', 'clean_acc', 'weight_err', 'sqrt_acc'
+      adv_acc_weight: 2.
+      clip_clean_acc: 100
+  valid:  # Validation params
+    batch_size: 16
+  num_workers: 16
+  console_out: True
+
+# =========================================================================== #
+#                          Adversarial Training Params                        #
+# =========================================================================== #
+at:
+  method: 'opt'
+  optimizer: 'aggmo'
+  random_start: True    # if True, use random start
+  loss_func: 'linear'       # loss function for generating adversarial examples (options: 'ce', 'hinge', 'clipped_ce', 'trades')
+  gap: 1.0e+9
+  clip: [0., 1.]            # if True, clip adversarial input to [0, 1]
+  beta: 0.               # TRADES parameters
+
+  # parameters for AT with l-inf norm
+  p: 'inf'              # specify lp-norm to use
+  # epsilon: 0.031372     # 8/255
+  # epsilon: 0.04705882352
+  epsilon: 0.06274509803   # 16/255
+  # epsilon: 0.07843137254
+  # epsilon: 0.09411764705
+  # epsilon: 0.10980392156
+  # epsilon: 0.12549019607
+  # epsilon: 0.18823529411
+  # epsilon: 0.25098039215
+  # step_size: 0.00392156862
+  # step_size: 0.00588235294
+  step_size: 0.00784313725   # 2/255
+  # step_size: 0.01176470588
+  # step_size: 0.01372549019
+  # step_size: 0.0156862745
+  # step_size: 0.01960784313
+  # step_size: 0.02352941176
+  # step_size: 0.03137254901
+  num_steps: 50
+  var_change: False
+  normalize: True
+  sgm_gamma: 0.5
+
+# =========================================================================== #
+#                                  Attack Params                              #
+# =========================================================================== #
+attack:
+  method: 'opt'   # 'pgd', 'opt', 'auto'
+  p: 'inf'
+
+# Parameters for pgd attack
+pgd:
+  random_start: True
+  loss_func: 'hinge'
+  gap: 1.0e+9    # Gap parameter of hinge loss
+  targeted: False
+  clip: [0., 1.]    # clipping values on the perturbed sample (use null for no clipping)
+  init_mode: 1
+  num_restarts: 1
+  num_steps: 200
+  step_size: 0.005
+  # maximin: 10
+  momentum:
+    mu: 1.
+    # decay: False
+    normalize: True
+    vr: 'basic'
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+
+# Parameters for Opt attack
+opt:
+  optimizer: 'aggmo'    # 'sgd', 'sgd', 'rmsprop'
+  random_start: True
+  loss_func: 'linear'
+  gap: 1.0e+9
+  # targeted: True
+  clip: [0., 1.]
+  epsilon: 0.06274509803
+  num_steps: 1000
+  step_size: 0.005
+  # step_size: 0.1
+  # lr_schedule: null    # 'cyclic', null
+  var_change: False
+  normalize: True
+  # maximin: 10
+  # momentum: 
+  #   mu: 0.9
+  #   # nesterov: True
+  sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+  report_steps: [100, 200, 500, 800, 1000]
+
+# Parameters for auto-attack
+auto:
+  version: 'standard'
+
+# =========================================================================== #
+#                             Random Transform Params                         #
+# =========================================================================== #
+rand:
+  train:
+    rule: 'mean_probs' # 'mean_probs', 'none'
+    num_draws: 4
+    tf_order: 'random'
+    # tf_order: 'fixed'
+    # fix_seed: True
+  at:
+    rule: 'mean_logits'
+    num_draws: 1 
+    tf_order: 'fixed'
+  test:
+    rule: 'mean_probs'
+    num_draws: 20
+    tf_order: 'random'
+    # fix_seed: True
+  attack:
+    rule: 'mean_logits'
+    num_draws: 10
+    tf_order: 'fixed'
+    # fix_seed: True
+  diversity:
+    rule: 'none'
+    num_draws: 20
+  clip: [0., 1.]
+  # set_all_p: 1.
+  subset_size: 1   # Number of transformations to apply per one input
+  # same_on_batch: True
+  # use_saved_transforms: False    # Whether to load saved transform
+  use_saved_transforms: '~/rand-smooth/save/imagenette/resnet34/rand/normal/23/rand.cfg'
+  transforms: ['normal']
+  # transforms: ['affine', 'crop', 'erase', 'gaussblur', 'hflip', 'normal', 
+  #              'gray1', 'gray', 'salt', 'gray2', 'vflip', 'pepper']
+  affine:
+    alpha: 0.3
+  boxblur:
+    p: 0.3
+  colorjitter:
+    alpha: 0.3
+  crop: 
+    alpha: 0.3
+  pepper:
+    alpha: 0.3    # drop rate
+  erase:
+    alpha: 0.3
+  fft:
+    alpha: 0.3
+  gamma:
+    alpha: 0.3
+  gaussblur:
+    p: 0.3
+  gray:
+    p: 0.3
+  gray1:
+    p: 0.3
+  gray2:
+    p: 0.3
+  graymix:
+    alpha: 0.3
+  hflip:
+    p: 0.5
+  hsv:
+    alpha: 0.3
+  jpeg:
+    alpha: 0.3
+  lab:
+    alpha: 0.3
+  laplacian:
+    p: 0.3
+    kernel_size: 3
+  medblur:
+    p: 0.3
+    kernel_size: 3
+  motionblur:
+    p: 0.3
+    kernel_size: 3
+    angle: 90.0
+    direction: 1.0
+  normal:
+    alpha: 0.3
+  poisson:
+    alpha: 0.3
+  precision:
+    alpha: 0.3
+  salt:
+    alpha: 0.3
+  sharp:
+    alpha: 0.3
+  sobel:
+    p: 0.3
+  solarize:
+    p: 0.3
+  speckle:
+    alpha: 0.3
+  swirl:
+    alpha: 0.3
+  uniform:
+    alpha: 0.3
+  vflip:
+    p: 0.5
+  xyz:
+    alpha: 0.3
+  yuv:
+    alpha: 0.3
+
+# TODO: Parameters for saving gradient information
+save_grad:
+  save_grad: False    # Set to True to save gradients
+  num_samples: 20
+  num_steps: 10
+
+diversity:
+  method: null
+  # method: ['agreement']
+  batch_size: 40

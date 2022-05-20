@@ -1,0 +1,82 @@
+# Config file for test_rand.py
+
+# meta parameters
+meta:
+  exp_id: 1
+  # model_name: 'none'
+  model_name: 'rand_flipsign'
+  # model_name: 'rand_normal'
+  # model_name: null
+  save_path: './'
+  data_path: '~/data/'
+  save_adv: False
+  seed: 2020
+  gpu_id: '7'
+  dataset: 'spheres'
+
+  # Spheres dataset params
+  d: 500
+  num_total: 1.0e+7
+  radii: [1., 1.3]
+  centers: [0., 0.]
+  test_size: 0.2
+
+  normalize: null
+  network: 'dense2'
+  val_size: 0.1
+  batch_size: 100
+  num_test_samples: 1000
+  # method: 'rand'
+  method: 'none'
+  attack: 'auto'
+
+# parameters to specify wrapper's behavior that may be different during inference and attack
+inference:
+  num_draws: 20    # number of MC samples per one input
+  rule: 'majority'    # decision rule used. Options: 'majority', 'mean_probs', 'mean_logits'
+  # rule: null
+  temperature: 1    # temperature used in softmax for rule in ['mean_probs', 'mean_logits']
+
+# parameters for pgd attack
+pgd:
+  batch_size: 100
+  random_start: True
+  loss_func: 'ce'
+  gap: 1.0e+9
+  targeted: False
+  # clip: [0., 1.]
+  clip: null
+  init_mode: 1
+  num_restarts: 1
+  use_minimax: False
+
+  p: '2'
+  epsilon: 0.1
+  num_steps: 100
+  step_size: 0.01
+
+auto:
+  # TODO: (1) L2 norm obtained is larger than specified, (2) clamp
+  batch_size: 100
+  version: 'standard-spheres'
+  p: '2'
+  epsilon: 0.1
+
+rand:
+  rule: 'mean_probs'
+  temperature: 1
+  seed: null
+  clip: null
+  # clip: [0., 1.]
+  num_draws: 20
+  transforms: ['flipsign']
+  # transforms: ['normal']
+  flipsign:
+    p: 0.5
+  normal:
+    mean: 0.0
+    std: 0.1
+    # clip: [0., 1.]
+    clip: null
+  uniform:
+    range: [-0.2, 0.2]

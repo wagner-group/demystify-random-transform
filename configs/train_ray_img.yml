@@ -1,0 +1,349 @@
+# Config file for train_ray.py for CIFAR-10.
+
+# =========================================================================== #
+#                                 Ray Tune Params                             #
+# =========================================================================== #
+ray: 
+  exp_id: 236
+  algo: 'bayes'           # 'bayes', 'hyperopt', 'bohb', null
+  scheduler: null         # 'asha', 'bohb', null
+  init_eval_points: False
+  # init_eval_points: True
+  metric: 
+    metric: 'weight_acc'    # 'weight_acc', 'sqrt_acc'
+    adv_acc_weight: 2.0
+    clip_clean_acc: 100      # 0 - 100 or null
+    report_epochs: 1
+  max_concurrent: 4
+  run_params: 
+    num_samples: 100
+    resources_per_trial: 
+      cpu: 8
+      gpu: 1
+    verbose: 0
+  stopper:
+    patience: 40
+    min_trials: 80
+  search_space:
+    affine: [0., 0.5]
+    boxblur: [0., 1.]
+    # colorjitter: [0., 0.5]
+    crop: [0., 0.5]
+    erase: [0., 0.5]
+    fft: [0., 0.5]
+    # gamma: [0., 0.5]
+    gaussblur: [0., 1.]
+    gray: [0., 1.]
+    gray1: [0., 1.]
+    # gray2: [0., 1.]
+    graymix: [0., 0.5]
+    hflip: [0., 1.]
+    # hsv: [0., 0.5]
+    # jpeg: [0., 0.5]
+    # lab: [0., 0.5]
+    # laplacian: [0., 1.]
+    # medblur: [0., 1.]
+    motionblur: [0., 1.]
+    normal: [0., 0.5]
+    pepper: [0., 0.5]
+    poisson: [0., 0.5]
+    # precision: [0., 0.5]
+    salt: [0., 0.5]
+    sharp: [0., 0.5]
+    # sobel: [0., 1.]
+    solarize: [0., 1.]
+    speckle: [0., 0.5]
+    swirl: [0., 0.5]
+    uniform: [0., 0.5]
+    vflip: [0., 1.]
+    # xyz: [0., 0.5]
+    # yuv: [0., 0.5]
+  bayes:
+    random_search_steps: 10
+  hyperopt:
+    n_initial_points: 20
+    gamma: 0.25
+  asha:
+    max_t: null         # Max iterations before stopping (null: use `epochs`)
+    grace_period: 10
+    reduction_factor: 2
+  bohb:
+    max_t: null
+    reduction_factor: 3
+
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  seed: 2020
+  model_name: null        # If set to null, model name is auto-generated
+  save_path: '~/rand-smooth/save/'
+  data_path: '~/data/imagenette2-320/'
+  network: 'resnet34'
+  pretrained: True
+  dataset: 'imagenette'
+  classes: null
+  augment: False           # Whether to augment training data
+  normalize: null
+  shuffle: True           # Should always be True for consistency
+  val_size: 0.8           # Validation set split
+  method: 'pgd-rand'
+  console_out: False
+  test:   # Testing params
+    batch_size: 24
+    num_samples: 1000
+    save_adv: False          # Save generated adversarial examples
+    save_adv_out: False      # Save logits output for adversarial examples
+    save_clean_out: False    # Save logits output for clean samples
+    clean_only: False        # Evaluate model on clean data only
+  train:  # Training params
+    batch_size: 64
+    epochs: 40
+    l2_reg: 0.0005
+    learning_rate: 0.05
+    lr_scheduler: 'cos'
+    step_len: 20
+    optimizer: 'sgd'
+    save_best_only: True
+    save_epochs: 1
+    eval_with_atk: False
+    metric: 
+      metric: 'weight_acc'    # 'adv_acc', 'clean_acc', 'weight_err', 'sqrt_acc'
+      adv_acc_weight: 2.
+      clip_clean_acc: 100
+  valid:  # Validation params
+    batch_size: 32
+    num_samples: 100
+  ray:
+    num_samples: -300    # Use last `num_samples` validation samples for hyperparameter tuning (not overlap with early stopping validation during training)  
+
+# at:
+#   loss_func: null
+
+# =========================================================================== #
+#                                  Attack Params                              #
+# =========================================================================== #
+attack:
+  method: 'opt'   # 'pgd', 'opt', 'auto'
+  p: 'inf'
+
+# Parameters for Opt attack
+opt:
+  optimizer: 'aggmo'    # 'sgd', 'adam', 'rmsprop'
+  loss_func: 'ce'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  epsilon: 0.06274509803
+  num_steps: 200
+  step_size: 0.005
+  var_change: False
+  normalize: False
+  # sgm_gamma: 0.5
+  aggmo: 
+    k: 3
+    rand_k: False
+
+# =========================================================================== #
+#                             Random Transform Params                         #
+# =========================================================================== #
+rand:
+  train:
+    rule: 'mean_probs' # 'mean_probs', 'none'
+    num_draws: 4
+    tf_order: 'random'
+  test:
+    rule: 'mean_probs'
+    num_draws: 20
+    tf_order: 'random'
+  attack:
+    rule: 'mean_probs'
+    num_draws: 4
+    tf_order: 'random'
+  at:
+    rule: 'mean_probs'
+    num_draws: 4
+    tf_order: 'random'
+  clip: [0., 1.]
+  # set_all_p: 1.
+  subset_size: 6
+  use_saved_transforms: False    # Whether to load saved transform
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'pepper', 
+  #              'hsv', 'erase', 'fft', 'gamma', 'gaussblur',
+  #              'hflip', 'jpeg', 'lab', 'laplacian', 'medblur', 'graymix', 
+  #              'motionblur', 'normal', 'gray1', 'poisson', 'gray', 
+  #              'precision', 'salt', 'sharp', 'sobel', 'solarize', 'speckle', 
+  #              'swirl', 'gray2', 'uniform', 'vflip', 'xyz', 'yuv']
+  # No noise injection
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'hsv', 'fft', 'gamma', 
+  #              'gaussblur', 'hflip', 'jpeg', 'lab', 'laplacian', 'medblur', 'graymix', 
+  #              'motionblur', 'gray1', 'gray', 'precision', 'sharp', 'sobel', 
+  #              'solarize', 'swirl', 'gray2', 'vflip', 'xyz', 'yuv']
+  # transforms: ['pepper', 'erase', 'normal', 'poisson', 'salt', 'speckle', 'uniform']
+  # No blur
+  # transforms: ['affine',  'colorjitter', 'crop', 'pepper', 'hsv', 'erase', 'fft', 
+  #              'gamma', 'hflip', 'jpeg', 'lab', 'laplacian', 'graymix', 'normal', 
+  #              'gray1', 'poisson', 'gray', 'precision', 'salt', 'sharp', 'sobel', 
+  #              'solarize', 'speckle', 'swirl', 'gray2', 'uniform', 'vflip', 'xyz', 'yuv']
+  # transforms: ['boxblur', 'gaussblur', 'medblur', 'motionblur']
+  # No color space
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'pepper', 'erase', 
+  #              'fft', 'gamma', 'gaussblur', 'hflip', 'jpeg', 'laplacian', 'medblur', 
+  #              'motionblur', 'normal', 'poisson', 'precision', 'salt', 'sharp', 
+  #              'sobel', 'solarize', 'speckle', 'swirl',  'uniform', 'vflip']
+  # transforms: ['hsv', 'lab', 'graymix', 'gray', 'gray1', 'gray2', 'xyz', 'yuv']
+  # No edge detection
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'pepper', 'hsv', 'erase', 
+  #              'fft', 'gamma', 'gaussblur', 'hflip', 'jpeg', 'lab', 'medblur', 
+  #              'graymix', 'motionblur', 'normal', 'gray1', 'poisson', 'gray', 
+  #              'precision', 'salt', 'sharp', 'solarize', 'speckle', 'swirl', 
+  #              'gray2', 'uniform', 'vflip', 'xyz', 'yuv']
+  # transforms: ['laplacian', 'sobel']
+  # No lossy compression
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'erase', 'gamma', 
+  #              'gaussblur', 'gray', 'gray1', 'gray2', 'graymix', 'hflip', 'hsv', 
+  #              'lab', 'laplacian', 'medblur', 'motionblur', 'normal', 'pepper', 
+  #              'poisson', 'salt', 'sharp', 'sobel', 'solarize', 'speckle', 
+  #              'swirl', 'uniform', 'vflip', 'xyz', 'yuv']
+  # transforms: ['fft', 'jpeg', 'precision']
+  # No geometric
+  # transforms: ['boxblur', 'colorjitter', 'pepper', 'hsv', 'erase', 'fft', 'gamma', 
+  #              'gaussblur', 'jpeg', 'lab', 'laplacian', 'medblur', 'graymix', 
+  #              'motionblur', 'normal', 'gray1', 'poisson', 'gray', 'precision', 
+  #              'salt', 'sharp', 'sobel', 'solarize', 'speckle', 'gray2', 
+  #              'uniform', 'xyz', 'yuv']
+  # transforms: ['affine', 'crop', 'hflip', 'swirl', 'vflip']
+  # No stylization
+  # transforms: ['affine', 'boxblur', 'crop', 'pepper', 'hsv', 'erase', 'fft', 
+  #              'gaussblur', 'hflip', 'jpeg', 'lab', 'laplacian', 'medblur', 
+  #              'graymix', 'motionblur', 'normal', 'gray1', 'poisson', 'gray', 
+  #              'precision', 'salt', 'sobel', 'speckle', 'swirl', 'gray2', 
+  #              'uniform', 'vflip', 'xyz', 'yuv']
+  # transforms: ['colorjitter', 'gamma', 'sharp', 'solarize']
+  # Best
+  # transforms: ['affine', 'colorjitter', 'erase', 'fft', 'gamma', 'gaussblur', 
+  #              'hflip', 'jpeg', 'laplacian', 'medblur', 'motionblur', 'poisson', 
+  #              'precision', 'salt', 'sharp', 'sobel', 'solarize', 'vflip']
+  # transforms: ['affine', 'colorjitter', 'erase', 'fft', 'gamma', 'gaussblur_same', 
+  #              'hflip', 'jpeg', 'laplacian', 'medblur', 'motionblur', 'poisson', 
+  #              'precision', 'salt', 'sharp', 'sobel', 'solarize', 'vflip']
+  # transforms: ['affine', 'boxblur', 'crop', 'pepper', 'erase', 'fft', 'gaussblur',
+  #              'hflip', 'graymix', 'motionblur', 'normal', 'gray1', 'poisson', 
+  #              'gray', 'salt', 'speckle', 'swirl', 'gray2', 'uniform', 'vflip']
+  # transforms: ['affine', 'colorjitter', 'crop', 'pepper', 'hsv', 'erase', 'gaussblur',
+  #              'hflip', 'jpeg', 'lab', 'laplacian', 'medblur', 'graymix', 'motionblur', 
+  #              'normal', 'gray1', 'poisson', 'precision', 'salt', 'sobel', 'solarize', 
+  #              'speckle', 'gray2', 'vflip', 'xyz', 'yuv']
+  # Remove approx
+  # transforms: ['affine', 'boxblur', 'crop', 'pepper', 'erase', 'fft', 'gamma', 
+  #              'gaussblur', 'hflip', 'laplacian', 'medblur', 'graymix', 
+  #              'motionblur', 'normal', 'gray1', 'poisson', 'gray', 'salt', 'sharp', 
+  #              'sobel', 'solarize', 'speckle', 'gray2', 'uniform', 'vflip',]
+  # Second removal
+  # transforms: ['affine', 'boxblur', 'crop', 'pepper', 'erase', 'gamma', 'gaussblur', 
+  #              'hflip', 'graymix', 'motionblur', 'normal', 'gray1', 'gray', 'salt', 
+  #              'sharp', 'sobel', 'solarize', 'speckle', 'gray2', 'uniform', 'vflip',]
+  # 214
+  # transforms: ['affine', 'boxblur', 'crop', 'pepper', 'erase', 'fft', 'gaussblur', 
+  #              'hflip', 'graymix', 'motionblur', 'normal', 'gray1', 'gray', 'salt', 
+  #              'sharp', 'sobel', 'solarize', 'speckle', 'gray2', 'uniform', 'vflip',]
+  # 215, 236
+  transforms: ['affine', 'boxblur', 'crop', 'pepper', 'erase', 'fft', 'gaussblur', 
+               'hflip', 'graymix', 'motionblur', 'normal', 'gray1', 'gray', 'salt', 
+               'sharp', 'poisson', 'swirl', 'speckle', 'uniform', 'vflip', 'solarize']
+  affine:
+    alpha: 0.3
+  boxblur:
+    p: 0.3
+  colorjitter:
+    alpha: 0.3
+  crop: 
+    alpha: 0.3
+  erase:
+    alpha: 0.3
+  fft:
+    alpha: 0.3
+  gamma:
+    alpha: 0.3
+  gaussblur:
+    p: 0.3
+  gaussblur_same:
+    p: 0.3
+    kernel_size: 5
+    sigma: 2.5
+  gray:
+    p: 0.3
+  gray1:
+    p: 0.3
+  gray2:
+    p: 0.3
+  graymix:
+    alpha: 0.3
+  hflip:
+    p: 1.
+  hsv:
+    alpha: 0.3
+  jpeg:
+    alpha: 0.3
+  lab:
+    alpha: 0.3
+  laplacian:
+    p: 1.
+    kernel_size: 3
+  medblur:
+    p: 1.
+    kernel_size: 3
+  motionblur:
+    p: 0.3
+    kernel_size: 3
+    angle: 90.0
+    direction: 1.0
+  normal:
+    alpha: 0.3
+  pepper:
+    alpha: 0.3
+  poisson:
+    alpha: 0.3
+  precision:
+    alpha: 0.3
+  salt:
+    alpha: 0.3
+  sharp:
+    alpha: 0.3
+  sobel:
+    p: 0.3
+  solarize:
+    p: 1.
+  speckle:
+    alpha: 0.3
+  swirl:
+    alpha: 0.3
+  uniform:
+    alpha: 0.3
+  vflip:
+    p: 1.
+  xyz:
+    alpha: 0.3
+  yuv:
+    alpha: 0.3
+
+at:
+  method: 'opt'
+  optimizer: 'aggmo'
+  random_start: True    # if True, use random start
+  loss_func: 'ce'       # loss function for generating adversarial examples (options: 'ce', 'hinge', 'clipped_ce', 'trades')
+  gap: 1.0e+9
+  clip: [0., 1.]            # if True, clip adversarial input to [0, 1]
+  beta: 0.               # TRADES parameters
+  # parameters for AT with l-inf norm
+  p: 'inf'              # specify lp-norm to use
+  epsilon: 0.07843137254   # 20/255
+  # step_size: 0.03921568627  # 10/255
+  # step_size: 0.04705882352  # 12/255
+  step_size: 0.06274509803  # 16/255
+  num_steps: 5
+  var_change: False
+  normalize: False
+  # sgm_gamma: 0.5
+  aggmo: 
+    k: 3
+    rand_k: False

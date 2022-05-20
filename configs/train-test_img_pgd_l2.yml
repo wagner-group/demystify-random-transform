@@ -1,0 +1,122 @@
+# Config file for train_ray.py for CIFAR-10.
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  exp_id: 12
+  gpu_id: '6'
+  seed: 2020
+  model_name: null        # If set to null, model name is auto-generated
+  save_path: '/home/user/rand-smooth/save/'
+  data_path: '~/data/imagenette2-320/'
+  network: 'resnet34'
+  pretrained: True
+  dataset: 'imagenette'
+  classes: null
+  augment: True           # Whether to augment training data
+  normalize: null
+  shuffle: True           # Should always be True for consistency
+  val_size: 0.1           # Validation set split
+  method: 'pgd'
+  test:   # Testing params
+    batch_size: 200
+    num_samples: 1000
+    save_adv: False          # Save generated adversarial examples
+    save_adv_out: False      # Save logits output for adversarial examples
+    save_clean_out: False    # Save logits output for clean samples
+    clean_only: False        # Evaluate model on clean data only
+  train:  # Training params
+    batch_size: 128
+    epochs: 140
+    l2_reg: 0.0005
+    learning_rate: 0.05
+    lr_scheduler: 'cos'
+    step_len: 20
+    optimizer: 'sgd'
+    save_best_only: True
+    save_epochs: 1
+    eval_with_atk: False
+    metric: 
+      metric: 'adv_acc'    # 'adv_acc', 'clean_acc', 'weight_err', 'sqrt_acc'
+      adv_acc_weight: 1.
+      clip_clean_acc: 100
+  valid:  # Validation params
+    batch_size: 200
+    num_samples: null
+
+# =========================================================================== #
+#                          Adversarial Training Params                        #
+# =========================================================================== #
+at:
+  random_start: True    # if True, use random start
+  loss_func: 'ce'       # loss function for generating adversarial examples (options: 'ce', 'hinge', 'clipped_ce', 'trades')
+  use_diff_rand_eps: False    # if True, use random start with perturbation size of <rand_eps> instead of <epsilon>
+  rand_eps: null
+  clip: [0., 1.]            # if True, clip adversarial input to [0, 1]
+  beta: 6               # TRADES parameters
+
+  # parameters for AT with l-inf norm
+  p: '2'              # specify lp-norm to use
+  epsilon: 16.
+  step_size: 4.
+  num_steps: 10
+
+# =========================================================================== #
+#                                  Attack Params                              #
+# =========================================================================== #
+attack:
+  method: 'auto'   # 'pgd', 'opt', 'auto'
+  p: '2'
+  eps_list: [16.]
+  use_preset: False
+
+# Parameters for pgd attack
+pgd:
+  random_start: True
+  loss_func: 'ce'
+  gap: 1.0e+9    # Gap parameter of hinge loss
+  targeted: False
+  clip: [0., 1.]    # clipping values on the perturbed sample (use null for no clipping)
+  init_mode: 1
+  num_restarts: 5
+  num_steps: 100
+  step_size: 0.005
+  # maximin: 10
+  # momentum:
+  #   mu: 1.
+  #   decay: False
+  #   normalize: True
+  #   vr: True
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+
+# Parameters for Opt attack
+opt:
+  optimizer: 'adam'    # 'sgd', 'adam', 'rmsprop'
+  random_start: True
+  loss_func: 'ce'
+  gap: 1.0e+9
+  targeted: False
+  clip: [0., 1.]
+  init_mode: 1
+  num_restarts: 1
+  num_steps: 500
+  learning_rate: 0.2
+  lr_schedule: null    # 'cyclic', null
+  # maximin: 10
+  # momentum: 1.
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+
+# Parameters for auto-attack
+auto:
+  version: 'standard'
+
+# TODO: Parameters for saving gradient information
+save_grad:
+  save_grad: False    # Set to True to save gradients
+  num_samples: 20
+  num_steps: 10
+
+diversity:
+  method: null

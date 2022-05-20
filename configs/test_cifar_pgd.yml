@@ -1,0 +1,96 @@
+# Config file for train_and_test.py for CIFAR-10.
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  exp_id: 5
+  gpu_id: '2'
+  seed: 2020
+  model_name: null        # If set to null, model name is auto-generated
+  save_path: './save/'    # This relative path is set to Ray's `local_dir/name`
+  data_path: '~/data/'
+  network: 'resnet'
+  dataset: 'cifar10'
+  augment: False          # Whether to augment training data
+  normalize: null
+  shuffle: True           # Should always be True for consistency
+  val_size: 0.1           # Validation set split
+  method: 'pgd'
+  test:   # Testing params
+    batch_size: 200
+    num_samples: 1000
+    save_adv: False          # Save generated adversarial examples
+    save_adv_out: False      # Save logits output for adversarial examples
+    save_clean_out: False    # Save logits output for clean samples
+    clean_only: False        # Evaluate model on clean data only
+  train:  # Training params
+    batch_size: 128
+  valid:  # Validation params
+    batch_size: 200
+    num_samples: null
+
+# =========================================================================== #
+#                                  Attack Params                              #
+# =========================================================================== #
+attack:
+  method: 'pgd'   # 'pgd', 'opt', 'auto'
+  batch_size: 200
+  p: 'inf'
+  eps_list: [0.031372]
+  # eps_list: [0.031372, 0.047058, 0.062745]
+  # eps_list: [0.047058, 0.062745]
+  use_preset: False
+
+# Parameters for pgd attack
+pgd:
+  random_start: True
+  loss_func: 'ce'
+  # loss_func: 'logits'
+  gap: 1.0e+9    # Gap parameter of hinge loss
+  targeted: False
+  clip: [0., 1.]    # clipping values on the perturbed sample (use null for no clipping)
+  init_mode: 1
+  num_restarts: 2
+  num_steps: 100
+  step_size: 0.005
+  # maximin: 10    # Use minimax objective function instead of expectation
+  # momentum:
+  #   mu: 1.
+  #   decay: False
+  #   normalize: True
+  #   vr: True
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+
+# Parameters for Opt attack
+opt:
+  optimizer: 'adam'    # 'sgd', 'adam', 'rmsprop'
+  random_start: True
+  loss_func: 'ce'
+  gap: 1.0e+9
+  targeted: False
+  clip: [0., 1.]
+  init_mode: 1
+  num_restarts: 5
+  num_steps: 100
+  learning_rate: 0.1
+  lr_schedule: 'cyclic'    # 'cyclic', null
+  # maximin: 10
+  # momentum: 0.5
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+
+# Parameters for auto-attack
+auto:
+  version: 'standard'   # 'standard', 'plus', 'rand'
+
+# TODO: Parameters for saving gradient information
+save_grad:
+  save_grad: False    # Set to True to save gradients
+  num_samples: 20
+  num_steps: 10
+
+diversity:
+  method: null
+  # method: ['agreement']
+  batch_size: 40

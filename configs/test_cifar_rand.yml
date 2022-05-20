@@ -1,0 +1,430 @@
+# Config file for train_and_test.py for CIFAR-10.
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  exp_id: 71
+  seed: 2020
+  model_name: null        # If set to null, model name is auto-generated
+  save_path: '~/rand-smooth/save'
+  data_path: '~/data'
+  network: 'resnet'
+  dataset: 'cifar10'
+  augment: False          # Whether to augment training data
+  normalize: null
+  shuffle: True           # Should always be True for consistency
+  val_size: 0.1           # Validation set split
+  method: 'pgd-rand'
+  test:   # Testing params
+    batch_size: 400
+    num_samples: 1000
+    save_output: False
+    # save_name: 'auto-standard'
+    save_adv: False           # Save generated adversarial examples
+    save_adv_out: False      # Save logits output for adversarial examples
+    save_clean_out: False    # Save logits output for clean samples
+    clean_only: False        # Evaluate model on clean data only
+    adv_only: False
+    num_conf_repeats: 10
+  train:  # Training params
+    batch_size: 128
+  valid:  # Validation params
+    batch_size: 100
+  num_workers: 8
+  console_out: True
+
+# =========================================================================== #
+#                                  Attack Params                              #
+# =========================================================================== #
+attack:
+  method: 'opt'   # 'pgd', 'opt', 'auto'
+  # method: ['pgd1', 'pgd2', 'pgd3', 'pgd4', 'pgd5', 'pgd6']
+  # method: ['opt1', 'opt2', 'opt3', 'opt4', 'opt5', 'opt6']
+  p: 'inf'
+  # save_grad: True
+
+# Parameters for pgd attack
+pgd:
+  random_start: True
+  loss_func: 'ce'
+  gap: 1.0e+9    # Gap parameter of hinge loss
+  targeted: False
+  clip: [0., 1.]    # clipping values on the perturbed sample (use null for no clipping)
+  init_mode: 1
+  num_restarts: 1
+  epsilon: 0.03137254901
+  num_steps: 3000
+  step_size: 0.002
+  # maximin: 10    # Use minimax objective function instead of expectation
+  # momentum:
+  #   mu: 1.
+  #   decay: False
+  #   normalize: True
+  #   # vr: 'storm'
+  #   # vr: 'basic'
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+  report_steps: [100, 200, 500, 800, 1000, 1600, 2000, 3000]
+
+# Parameters for Opt attack
+opt:
+  optimizer: 'aggmo'    # 'sgd', 'sgd', 'rmsprop'
+  random_start: True
+  loss_func: 'linear'
+  gap: 1.0e+9
+  # targeted: True
+  clip: [0., 1.]
+  epsilon: 0.03137254901
+  num_steps: 1000
+  step_size: 0.002
+  # step_size: 0.01
+  # lr_schedule: null    # 'cyclic', null
+  var_change: False
+  normalize: False
+  aggmo: 
+    k: 3
+    rand_k: False
+  # maximin: 10
+  # momentum: 
+  #   mu: 0.999
+  #   # nesterov: True
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+  # report_steps: [100, 200, 500, 800, 1000, 1600, 2000, 3000]
+  # report_steps: [100, 200, 500, 800]
+  report_steps: [100, 200, 400]
+
+# Parameters for auto-attack
+auto:
+  epsilon: 0.03137254901
+  version: 'standard'   # 'standard', 'plus', 'rand'
+
+# =========================================================================== #
+#                             Random Transform Params                         #
+# =========================================================================== #
+rand:
+  test:
+    rule: 'mean_probs'
+    num_draws: 20
+    tf_order: 'random'
+  attack:
+    # rule: 'mean_probs'
+    # tf_order: 'random'
+    rule: 'mean_logits'
+    tf_order: 'fixed'
+    num_draws: 10
+  clip: [0., 1.]
+  subset_size: 8
+  use_saved_transforms: True    # Whether to load saved transform
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'pepper', 'hsv', 'erase', 
+  #              'fft', 'gamma', 'gaussblur', 'hflip', 'jpeg', 'lab', 'laplacian', 
+  #              'medblur', 'graymix', 'motionblur', 'normal', 'gray1', 'poisson', 
+  #              'gray', 'precision', 'salt', 'sharp', 'sobel', 'solarize', 'speckle', 
+  #              'swirl', 'gray2', 'uniform', 'vflip', 'xyz', 'yuv']
+  # No noise injection
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'hsv', 'fft', 'gamma', 
+  #              'gaussblur', 'hflip', 'jpeg', 'lab', 'laplacian', 'medblur', 'graymix', 
+  #              'motionblur', 'gray1', 'gray', 'precision', 'sharp', 'sobel', 
+  #              'solarize', 'swirl', 'gray2', 'vflip', 'xyz', 'yuv']
+  # transforms: ['pepper', 'erase', 'normal', 'poisson', 'salt', 'speckle', 'uniform']
+  # No blur
+  # transforms: ['affine',  'colorjitter', 'crop', 'pepper', 'hsv', 'erase', 'fft', 
+  #              'gamma', 'hflip', 'jpeg', 'lab', 'laplacian', 'graymix', 'normal', 
+  #              'gray1', 'poisson', 'gray', 'precision', 'salt', 'sharp', 'sobel', 
+  #              'solarize', 'speckle', 'swirl', 'gray2', 'uniform', 'vflip', 'xyz', 'yuv']
+  # transforms: ['boxblur', 'gaussblur', 'medblur', 'motionblur']
+  # No color space
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'pepper', 'erase', 
+  #              'fft', 'gamma', 'gaussblur', 'hflip', 'jpeg', 'laplacian', 'medblur', 
+  #              'motionblur', 'normal', 'poisson', 'precision', 'salt', 'sharp', 
+  #              'sobel', 'solarize', 'speckle', 'swirl',  'uniform', 'vflip']
+  # transforms: ['hsv', 'lab', 'graymix', 'gray', 'gray1', 'gray2', 'xyz', 'yuv']
+  # No edge detection
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'pepper', 'hsv', 'erase', 
+  #              'fft', 'gamma', 'gaussblur', 'hflip', 'jpeg', 'lab', 'medblur', 
+  #              'graymix', 'motionblur', 'normal', 'gray1', 'poisson', 'gray', 
+  #              'precision', 'salt', 'sharp', 'solarize', 'speckle', 'swirl', 
+  #              'gray2', 'uniform', 'vflip', 'xyz', 'yuv']
+  # transforms: ['laplacian', 'sobel']
+  # No lossy compression
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'erase', 'gamma', 
+  #              'gaussblur', 'gray', 'gray1', 'gray2', 'graymix', 'hflip', 'hsv', 
+  #              'lab', 'laplacian', 'medblur', 'motionblur', 'normal', 'pepper', 
+  #              'poisson', 'salt', 'sharp', 'sobel', 'solarize', 'speckle', 
+  #              'swirl', 'uniform', 'vflip', 'xyz', 'yuv']
+  # transforms: ['fft', 'jpeg', 'precision']
+  # No geometric
+  # transforms: ['boxblur', 'colorjitter', 'pepper', 'hsv', 'erase', 'fft', 'gamma', 
+  #              'gaussblur', 'jpeg', 'lab', 'laplacian', 'medblur', 'graymix', 
+  #              'motionblur', 'normal', 'gray1', 'poisson', 'gray', 'precision', 
+  #              'salt', 'sharp', 'sobel', 'solarize', 'speckle', 'gray2', 
+  #              'uniform', 'xyz', 'yuv']
+  # transforms: ['affine', 'crop', 'hflip', 'swirl', 'vflip']
+  # No stylization
+  # transforms: ['affine', 'boxblur', 'crop', 'pepper', 'hsv', 'erase', 'fft', 
+  #              'gaussblur', 'hflip', 'jpeg', 'lab', 'laplacian', 'medblur', 
+  #              'graymix', 'motionblur', 'normal', 'gray1', 'poisson', 'gray', 
+  #              'precision', 'salt', 'sobel', 'speckle', 'swirl', 'gray2', 
+  #              'uniform', 'vflip', 'xyz', 'yuv']
+  # transforms: ['colorjitter', 'gamma', 'sharp', 'solarize']
+  # Best
+  # transforms: ['affine', 'colorjitter', 'crop', 'erase', 'gamma', 'gray', 'gray1', 
+  #              'graymix', 'hflip', 'hsv', 'jpeg', 'normal', 'precision', 'salt', 
+  #              'sharp', 'sobel', 'solarize', 'speckle', 'uniform', 'vflip']
+  transforms: ['affine', 'boxblur', 'crop', 'pepper', 'erase', 'fft', 'gaussblur',
+               'hflip', 'graymix', 'motionblur', 'normal', 'gray1', 'poisson', 
+               'gray', 'salt', 'speckle', 'swirl', 'gray2', 'uniform', 'vflip']
+  affine:
+    alpha: 0.3
+  boxblur:
+    p: 0.3
+  colorjitter:
+    alpha: 0.3
+  crop: 
+    alpha: 0.3
+  pepper:
+    alpha: 0.3    # drop rate
+  erase:
+    alpha: 0.3
+  fft:
+    alpha: 0.3
+  gamma:
+    alpha: 0.3
+  gaussblur:
+    p: 0.3
+  gray:
+    p: 0.3
+  gray1:
+    p: 0.3
+  gray2:
+    p: 0.3
+  graymix:
+    alpha: 0.3
+  hflip:
+    p: 0.3
+  hsv:
+    alpha: 0.3
+  jpeg:
+    alpha: 0.3
+  lab:
+    alpha: 0.3
+  laplacian:
+    p: 0.3
+    kernel_size: 3
+  medblur:
+    p: 0.3
+    kernel_size: 3
+  motionblur:
+    p: 0.3
+    kernel_size: 3
+    angle: 90.0
+    direction: 1.0
+  normal:
+    alpha: 0.3
+  poisson:
+    alpha: 0.3
+  precision:
+    alpha: 0.3
+  salt:
+    alpha: 0.3
+  sharp:
+    alpha: 0.3
+  sobel:
+    p: 0.3
+  solarize:
+    p: 0.3
+  speckle:
+    alpha: 0.3
+  swirl:
+    alpha: 0.3
+  uniform:
+    alpha: 0.3
+  vflip:
+    p: 0.3
+  xyz:
+    alpha: 0.3
+  yuv:
+    alpha: 0.3
+  save_transformed_img: False
+
+
+pgd1:
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  epsilon: 0.03137254901
+  num_steps: 200
+  step_size: 0.005
+  num_draws: 5
+  # targeted: True
+  # linbp_layer: [4, 1]
+  # momentum:
+  #   mu: 1.
+  #   decay: False
+  #   normalize: True
+  #   # vr: 'storm'
+  #   vr: 'basic'
+  sgm_gamma: 0.5
+
+pgd2:
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  epsilon: 0.03137254901
+  num_steps: 200
+  step_size: 0.005
+  num_draws: 10
+  # targeted: True
+  # linbp_layer: [4, 1]
+  # momentum:
+  #   mu: 1.
+  #   decay: False
+  #   normalize: True
+  #   vr: 'basic'
+  sgm_gamma: 0.5
+
+pgd3:
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  epsilon: 0.03137254901
+  num_steps: 200
+  step_size: 0.005
+  num_draws: 20
+  # targeted: True
+  # linbp_layer: [4, 1]
+  # momentum:
+  #   mu: 1.
+  #   decay: False
+  #   normalize: True
+  #   vr: 'basic'
+  sgm_gamma: 0.5
+
+pgd4:
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  epsilon: 0.03137254901
+  num_steps: 50
+  step_size: 0.005
+  num_draws: 10
+  # targeted: True
+  # linbp_layer: [4, 1]
+  # momentum:
+  #   mu: 1.
+  #   decay: False
+  #   normalize: True
+  #   vr: 'basic'
+  sgm_gamma: 0.5
+
+pgd5:
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  epsilon: 0.03137254901
+  num_steps: 200
+  step_size: 0.005
+  num_draws: 10
+  # targeted: True
+  # linbp_layer: [4, 1]
+  # momentum:
+  #   mu: 1.
+  #   decay: False
+  #   normalize: True
+  #   vr: 'basic'
+  sgm_gamma: 0.5
+
+pgd6:
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  epsilon: 0.03137254901
+  num_steps: 800
+  step_size: 0.005
+  num_draws: 10
+  # targeted: True
+  # linbp_layer: [4, 1]
+  # momentum:
+  #   mu: 1.
+  #   decay: False
+  #   normalize: True
+  #   vr: 'basic'
+  sgm_gamma: 0.5
+
+opt1:
+  optimizer: 'adam'
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  var_change: False
+  normalize: True
+  epsilon: 0.03137254901
+  num_steps: 200
+  step_size: 0.005
+  num_draws: 5
+  sgm_gamma: 0.5
+
+opt2:
+  optimizer: 'adam'
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  var_change: False
+  normalize: True
+  epsilon: 0.03137254901
+  num_steps: 200
+  step_size: 0.005
+  num_draws: 10
+  sgm_gamma: 0.5
+
+opt3:
+  optimizer: 'adam'
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  var_change: False
+  normalize: True
+  epsilon: 0.03137254901
+  num_steps: 200
+  step_size: 0.005
+  num_draws: 20
+  sgm_gamma: 0.5
+
+opt4:
+  optimizer: 'adam'
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  var_change: False
+  normalize: True
+  epsilon: 0.03137254901
+  num_steps: 50
+  step_size: 0.005
+  num_draws: 10
+  sgm_gamma: 0.5
+
+opt5:
+  optimizer: 'adam'
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  var_change: False
+  normalize: True
+  epsilon: 0.03137254901
+  num_steps: 200
+  step_size: 0.005
+  num_draws: 10
+  sgm_gamma: 0.5
+
+opt6:
+  optimizer: 'adam'
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  clip: [0., 1.]
+  var_change: False
+  normalize: True
+  epsilon: 0.03137254901
+  num_steps: 800
+  step_size: 0.005
+  num_draws: 10
+  sgm_gamma: 0.5

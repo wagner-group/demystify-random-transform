@@ -1,0 +1,247 @@
+# Config file for train_ray.py for CIFAR-10.
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  exp_id: 50
+  seed: 2020
+  model_name: null        # If set to null, model name is auto-generated
+  save_path: '~/rand-smooth/save/'
+  data_path: '~/data'
+  pretrained: '~/rand-smooth/save/cifar10/resnet/none/1/model.pt'
+  network: 'resnet'
+  dataset: 'cifar10'
+  augment: False           # Whether to augment training data
+  normalize: null
+  shuffle: True           # Should always be True for consistency
+  val_size: 0.1           # Validation set split
+  method: 'rand2'
+  test:   # Testing params
+    batch_size: 400
+    num_samples: 1000
+    save_output: False
+    # save_name: 'hinge-m-vr-20-200'
+    save_adv: False          # Save generated adversarial examples
+    save_adv_out: False      # Save logits output for adversarial examples
+    save_clean_out: False    # Save logits output for clean samples
+    clean_only: False        # Evaluate model on clean data only
+    num_conf_repeats: 10
+  train:  # Training params
+    batch_size: 128
+    epochs: 50
+    l2_reg: 0.0005
+    learning_rate: 0.05
+    lr_scheduler: 'cos'
+    step_len: 10
+    optimizer: 'sgd'
+    save_best_only: True
+    save_epochs: 1
+    eval_with_atk: False
+    metric: 
+      metric: 'weight_acc'    # 'adv_acc', 'clean_acc', 'weight_err', 'sqrt_acc'
+      adv_acc_weight: 1.
+      clip_clean_acc: 100
+  valid:  # Validation params
+    batch_size: 80
+  num_workers: 8
+  console_out: True
+
+# =========================================================================== #
+#                          Adversarial Training Params                        #
+# =========================================================================== #
+at:
+  random_start: True    # if True, use random start
+  loss_func: 'ce'    # loss function for generating adversarial examples (options: 'ce', 'hinge', 'clipped_ce', 'trades')
+  beta: 0               # TRADES parameters
+  gap: 1.0e+9           # Gap parameter of hinge loss
+  targeted: False
+  clip: [0., 1.]        # if True, clip adversarial input to [0, 1]
+
+  # parameters for AT with l-inf norm
+  p: 'inf'              # specify lp-norm to use
+  epsilon: 0.031372     # 8/255
+  step_size: 0.007843   # 2/255
+  # step_size: 0.03921568627  # 10/255
+  num_steps: 10
+
+# =========================================================================== #
+#                                  Attack Params                              #
+# =========================================================================== #
+attack:
+  method: 'opt'   # 'pgd', 'opt', 'auto'
+  p: 'inf'
+
+# Parameters for pgd attack
+pgd:
+  random_start: True
+  loss_func: 'hinge'
+  gap: 1.0e+9    # Gap parameter of hinge loss
+  targeted: False
+  clip: [0., 1.]    # clipping values on the perturbed sample (use null for no clipping)
+  init_mode: 1
+  num_restarts: 1
+  epsilon: 0.03137254901
+  num_steps: 200
+  step_size: 0.005
+  # maximin: 10
+  momentum:
+    mu: 1.
+    # decay: False
+    normalize: True
+    vr: 'basic'
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+
+# Parameters for Opt attack
+opt:
+  optimizer: 'aggmo'    # 'sgd', 'adam', 'rmsprop'
+  random_start: True
+  loss_func: 'linear'
+  gap: 1.0e+9
+  targeted: False
+  clip: [0., 1.]
+  init_mode: 1
+  num_restarts: 1
+  epsilon: 0.03137254901
+  num_steps: 1000
+  step_size: 0.002
+  var_change: False     # Use change of variable trick like CW attack
+  normalize: True       # Normalize gradient before calling backward
+  aggmo:
+    k: 6
+    rand_k: False
+  # momentum: 
+  #   mu: 0.9
+  #   # nesterov: True
+  sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+
+# Parameters for auto-attack
+auto:
+  version: 'standard'
+
+# =========================================================================== #
+#                             Random Transform Params                         #
+# =========================================================================== #
+rand:
+  train:
+    rule: 'mean_probs' # 'mean_probs', 'none'
+    num_draws: 4
+    tf_order: 'random'
+  test:
+    rule: 'mean_probs'
+    num_draws: 20
+    tf_order: 'random'
+  attack:
+    rule: 'mean_probs'
+    num_draws: 10
+    tf_order: 'random'
+  at:
+    rule: 'mean_probs'
+    num_draws: 4
+    tf_order: 'random'
+  clip: [0., 1.]
+  # set_all_p: 1.
+  subset_size: 8
+  # use_saved_transforms: True    # Whether to load saved transform
+  # use_saved_transforms: '~/rand-smooth/save/cifar10/resnet/rand/affine-colorjitter-crop-erase-gamma-gray-gray1-graymix-hflip-hsv-jpeg-normal-precision-salt-sharp-sobel-solarize-speckle-uniform-vflip/1/rand.cfg'
+  # use_saved_transforms: '~/rand-smooth/save/cifar10/resnet/rand/affine-boxblur-crop-erase-fft-gaussblur-gray-gray1-gray2-graymix-hflip-motionblur-normal-pepper-poisson-salt-speckle-swirl-uniform-vflip/31/rand.cfg'
+  # use_saved_transforms: '~/rand-smooth/save/cifar10/resnet/pgd-rand2/39/rand.cfg'
+  use_saved_transforms: '~/rand-smooth/save/cifar10/resnet/rand2/50/rand.cfg'
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'pepper', 'hsv', 'erase', 
+  #              'fft', 'gamma', 'gaussblur', 'hflip', 'jpeg', 'lab', 'laplacian', 
+  #              'medblur', 'graymix', 'motionblur', 'normal', 'gray1', 'poisson', 
+  #              'gray', 'precision', 'salt', 'sharp', 'sobel', 'solarize', 'speckle', 
+  #              'swirl', 'gray2', 'uniform', 'vflip', 'xyz', 'yuv']
+  transforms: ['affine', 'colorjitter', 'crop', 'erase', 'gamma', 'gray', 'gray1', 
+               'graymix', 'hflip', 'hsv', 'jpeg', 'normal', 'precision', 'salt', 
+               'sharp', 'sobel', 'solarize', 'speckle', 'uniform', 'vflip']
+  # transforms: ['affine', 'crop', 'pepper', 'erase', 'fft', 'gamma', 'gaussblur', 
+  #              'laplacian', 'medblur', 'graymix', 'motionblur', 'normal', 'gray1', 
+  #              'poisson', 'gray', 'salt', 'sharp', 'solarize', 'speckle', 'gray2', 'vflip',]
+  # transforms: ['affine', 'crop', 'erase', 'fft', 'gaussblur', 'gray', 'gray1', 
+  #              'graymix', 'motionblur', 'normal', 'pepper', 'poisson', 'salt', 
+  #              'sharp', 'solarize', 'speckle', 'swirl', 'uniform', 'vflip',]
+  affine:
+    alpha: 0.24158146462502872
+  boxblur:
+    p: 0.4270059330025907
+  colorjitter:
+    alpha: 0.2229407786822556
+  crop: 
+    alpha: 0.04644645461006469
+  erase:
+    alpha: 0.3317740502571994
+  fft:
+    alpha: 0.39869328672839566
+  gamma:
+    alpha: 0.1808338250944555
+  gaussblur:
+    p: 0.8437187444013535
+  gray:
+    p: 0.6519671321852214
+  gray1: 
+    p: 0.354854490961539
+  gray2: 
+    p: 0.5461101678154556
+  graymix: 
+    alpha: 0.3997670119487781
+  hflip:
+    p: 0.06624929083957198
+  hsv:
+    alpha: 0.37165012885161935
+  jpeg:
+    alpha: 0.26713808448333526
+  lab:
+    alpha: 0.08050547499986277
+  laplacian:
+    p: 0.818445082799318
+    kernel_size: 3
+  medblur:
+    p: 0.2980896329243775
+    kernel_size: 3
+  motionblur:
+    p: 0.4965708889128262
+    kernel_size: 3
+    angle: 90.0
+    direction: 1.0
+  normal:
+    alpha: 0.10750879446322109
+  pepper:
+    alpha: 0.0837447999487449
+  poisson:
+    alpha: 0.016872929816560023
+  precision:
+    alpha: 0.08520264100275543
+  salt:
+    alpha: 0.38847502166158954
+  sharp:
+    alpha: 0.48359556406392784
+  sobel:
+    p: 0.3325353042040168
+  solarize:
+    p: 0.36761187924518335
+  speckle:
+    alpha: 0.06755224078258898
+  swirl:
+    alpha: 0.3842569617205097
+  uniform:
+    alpha: 0.22720897339065999
+  vflip:
+    p: 0.7527089217270637
+  xyz:
+    alpha: 0.060461234825234245
+  yuv:
+    alpha: 0.09997214382175085
+  save_transformed_img: False
+
+# TODO: Parameters for saving gradient information
+save_grad:
+  save_grad: False    # Set to True to save gradients
+  num_samples: 20
+  num_steps: 10
+
+diversity:
+  method: null
+  # method: ['agreement']
+  batch_size: 40

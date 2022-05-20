@@ -1,0 +1,182 @@
+# Config file for train_and_test.py for Imagenette.
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  exp_id: 1
+  gpu_id: '4, 5'
+  seed: 2020
+  model_name: null        # If set to null, model name is auto-generated
+  save_path: '/home/user/rand-smooth/save/'    # This relative path is set to Ray's `local_dir/name`
+  data_path: '~/data/imagenette2-320/'
+  load_pickle: False
+  network: 'resnet34'
+  # load_epoch: 100
+  pretrained: True
+  dataset: 'imagenette'
+  classes: null
+  augment: False           # Whether to augment training data
+  normalize: null
+  shuffle: True           # Should always be True for consistency
+  val_size: 0.1           # Validation set split
+  method: 'rand'           # 'none', 'rand', 'pgd', 'fgsm', 'rand-pgd'
+  test:   # Testing params
+    batch_size: 20
+    num_samples: 1000
+    # save_output: True
+    # save_name: 'aa-standard-20'
+  train:  # Training params
+    batch_size: 128
+  valid:  # Validation params
+    batch_size: 100
+  num_workers: 8
+  console_out: True
+
+diversity:
+  # method: ['mis-disagreement']
+  # method: ['variance']
+  # method: ['entropy-avg']
+  # method: ['model-uncertainty']
+  method: ['disagreement' ,'mis-disagreement', 'variance', 'entropy-avg', 
+           'avg-entropy', 'model-uncertainty']
+  # data_name: 'save_hinge-m-vr-20-3000.pkl'
+
+# =========================================================================== #
+#                             Random Transform Params                         #
+# =========================================================================== #
+rand:
+  test:
+    rule: 'none'
+    num_draws: 40
+    tf_order: 'random'
+  clip: [0., 1.]
+  # set_all_p: 1.
+  subset_size: 18
+  # subset_size: 14
+  # same_on_batch: True
+  use_saved_transforms: True
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'pepper', 
+  #              'hsv', 'erase', 'fft', 'gamma', 'gaussblur',
+  #              'hflip', 'jpeg', 'lab', 'laplacian', 'medblur', 'graymix', 
+  #              'motionblur', 'normal', 'gray1', 'poisson', 'gray', 
+  #              'precision', 'salt', 'sharp', 'sobel', 'solarize', 'speckle', 
+  #              'swirl', 'gray2', 'uniform', 'vflip', 'xyz', 'yuv']
+  transforms: ['affine', 'colorjitter', 'erase', 'fft', 'gamma', 'gaussblur', 
+               'hflip', 'jpeg', 'laplacian', 'medblur', 'motionblur', 'poisson', 
+               'precision', 'salt', 'sharp', 'sobel', 'solarize', 'vflip']
+  # No noise injection
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'hsv', 'fft', 'gamma', 
+  #              'gaussblur', 'hflip', 'jpeg', 'lab', 'laplacian', 'medblur', 'graymix', 
+  #              'motionblur', 'gray1', 'gray', 'precision', 'sharp', 'sobel', 
+  #              'solarize', 'swirl', 'gray2', 'vflip', 'xyz', 'yuv']
+  # No blur
+  # transforms: ['affine',  'colorjitter', 'crop', 'pepper', 'hsv', 'erase', 'fft', 
+  #              'gamma', 'hflip', 'jpeg', 'lab', 'laplacian', 'graymix', 'normal', 
+  #              'gray1', 'poisson', 'gray', 'precision', 'salt', 'sharp', 'sobel', 
+  #              'solarize', 'speckle', 'swirl', 'gray2', 'uniform', 'vflip', 'xyz', 'yuv']
+  # No color space
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'pepper', 'erase', 
+  #              'fft', 'gamma', 'gaussblur', 'hflip', 'jpeg', 'laplacian', 'medblur', 
+  #              'motionblur', 'normal', 'poisson', 'precision', 'salt', 'sharp', 
+  #              'sobel', 'solarize', 'speckle', 'swirl',  'uniform', 'vflip']
+  # No edge detection
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'pepper', 'hsv', 'erase', 
+  #              'fft', 'gamma', 'gaussblur', 'hflip', 'jpeg', 'lab', 'medblur', 
+  #              'graymix', 'motionblur', 'normal', 'gray1', 'poisson', 'gray', 
+  #              'precision', 'salt', 'sharp', 'solarize', 'speckle', 'swirl', 
+  #              'gray2', 'uniform', 'vflip', 'xyz', 'yuv']
+  # No lossy compression
+  # transforms: ['affine', 'boxblur', 'colorjitter', 'crop', 'erase', 'gamma', 
+  #              'gaussblur', 'gray', 'gray1', 'gray2', 'graymix', 'hflip', 'hsv', 
+  #              'lab', 'laplacian', 'medblur', 'motionblur', 'normal', 'pepper', 
+  #              'poisson', 'salt', 'sharp', 'sobel', 'solarize', 'speckle', 
+  #              'swirl', 'uniform', 'vflip', 'xyz', 'yuv']
+  # No geometric
+  # transforms: ['boxblur', 'colorjitter', 'pepper', 'hsv', 'erase', 'fft', 'gamma', 
+  #              'gaussblur', 'jpeg', 'lab', 'laplacian', 'medblur', 'graymix', 
+  #              'motionblur', 'normal', 'gray1', 'poisson', 'gray', 'precision', 
+  #              'salt', 'sharp', 'sobel', 'solarize', 'speckle', 'gray2', 
+  #              'uniform', 'xyz', 'yuv']
+  # No stylization
+  # transforms: ['affine', 'boxblur', 'crop', 'pepper', 'hsv', 'erase', 'fft', 
+  #              'gaussblur', 'hflip', 'jpeg', 'lab', 'laplacian', 'medblur', 
+  #              'graymix', 'motionblur', 'normal', 'gray1', 'poisson', 'gray', 
+  #              'precision', 'salt', 'sobel', 'speckle', 'swirl', 'gray2', 
+  #              'uniform', 'vflip', 'xyz', 'yuv']
+  affine:
+    alpha: 0.5
+  boxblur:
+    p: 0.0
+  colorjitter:
+    alpha: 0.5
+  crop: 
+    alpha: 0.
+  erase:
+    alpha: 0.2680
+  fft:
+    alpha: 0.5
+  gamma:
+    alpha: 0.5
+  gaussblur:
+    p: 0.3
+  gaussblur_same:
+    p: 0.322
+    kernel_size: 5
+    sigma: 2.5
+  gray:
+    p: 0.3
+  gray1:
+    p: 0.3
+  gray2:
+    p: 0.3
+  graymix:
+    alpha: 0.3
+  hflip:
+    p: 0.3859
+  hsv:
+    alpha: 0.3
+  jpeg:
+    alpha: 0.5
+  lab:
+    alpha: 0.3
+  laplacian:
+    p: 0.5163
+    kernel_size: 3
+  medblur:
+    p: 1.
+    kernel_size: 3
+  motionblur:
+    p: 0.6901
+    kernel_size: 3
+    angle: 90.0
+    direction: 1.0
+  normal:
+    alpha: 0.
+  pepper:
+    alpha: 0.    # drop rate
+  poisson:
+    alpha: 0.5
+  precision:
+    alpha: 0.221
+  salt:
+    alpha: 0.5
+  sharp:
+    alpha: 0.5
+  sobel:
+    p: 0.2663
+  solarize:
+    p: 0.4244
+  speckle:
+    alpha: 0.
+  swirl:
+    alpha: 0.
+  uniform:
+    alpha: 0.
+  vflip:
+    p: 0.5825
+  xyz:
+    alpha: 0.3
+  yuv:
+    alpha: 0.3
+  save_transformed_img: False
+

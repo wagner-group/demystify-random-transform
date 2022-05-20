@@ -1,0 +1,100 @@
+# Config file for train_and_test.py for Imagenette.
+# =========================================================================== #
+#                                   Meta Params                               #
+# =========================================================================== #
+meta:
+  exp_id: 18
+  seed: 2020
+  model_name: null        # If set to null, model name is auto-generated
+  save_path: '~/rand-smooth/save/'    # This relative path is set to Ray's `local_dir/name`
+  data_path: '~/data/imagenette2-320/'
+  load_pickle: False
+  network: 'resnet34'
+  pretrained: True
+  dataset: 'imagenette'
+  classes: null
+  augment: False           # Whether to augment training data
+  normalize: null
+  shuffle: True           # Should always be True for consistency
+  val_size: 0.1           # Validation set split
+  method: 'pgd'           # 'none', 'rand', 'pgd', 'fgsm', 'rand-pgd'
+  test:   # Testing params
+    batch_size: 200
+    num_samples: 1000
+    save_output: False
+    # save_name: 'ce'
+    save_adv: False           # Save generated adversarial examples
+    save_adv_out: False      # Save logits output for adversarial examples
+    save_clean_out: False    # Save logits output for clean samples
+    clean_only: False        # Evaluate model on clean data only
+    adv_only: False
+  train:  # Training params
+    batch_size: 128
+  valid:  # Validation params
+    batch_size: 100
+  num_workers: 4
+  console_out: True
+
+# =========================================================================== #
+#                                  Attack Params                              #
+# =========================================================================== #
+attack:
+  method: 'auto'   # 'pgd', 'opt', 'auto'
+  p: 'inf'
+
+# Parameters for pgd attack
+pgd:
+  random_start: True
+  loss_func: 'ce'   # 'ce', 'ce', 'logits'
+  gap: 1.0e+9    # Gap parameter of hinge loss
+  targeted: False
+  clip: [0., 1.]    # clipping values on the perturbed sample (use null for no clipping)
+  init_mode: 1
+  num_restarts: 2
+  epsilon: 0.06274509803
+  num_steps: 1000
+  step_size: 0.005
+  # step_size: 0.01568
+  # step_size: 0.07843137
+  # maximin: 10
+  # momentum:
+  #   mu: 1.
+  #   # decay: 'linear'
+  #   normalize: True
+  #   vr: 'basic'
+  # sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+  # report_steps: [100, 200, 300, 400, 500, 600, 700, 800, 900]
+
+# Parameters for Opt attack
+opt:
+  optimizer: 'adam'    # 'sgd', 'sgd', 'rmsprop'
+  random_start: True
+  loss_func: 'hinge'
+  gap: 1.0e+9
+  # targeted: True
+  clip: [0., 1.]
+  # epsilon: 0.04705882352
+  # epsilon: 0.07843137254
+  # epsilon: 0.09411764705
+  # epsilon: 0.10980392156
+  num_steps: 200
+  step_size: 0.005
+  # step_size: 0.1
+  # lr_schedule: null    # 'cyclic', null
+  var_change: False
+  normalize: True
+  # maximin: 10
+  # momentum: 
+  #   mu: 0.9
+  #   # nesterov: True
+  sgm_gamma: 0.5
+  # linbp_layer: [4, 1]
+  # report_steps: [100, 200, 500, 800]
+  # report_steps: [20, 40, 60, 80]
+
+# Parameters for auto-attack
+auto:
+  epsilon: 0.06274509803
+  version: 'standard'
+  # version: 'rand'
